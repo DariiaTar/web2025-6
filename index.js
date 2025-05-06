@@ -6,6 +6,7 @@ const path = require('path');
 const multer = require('multer'); 
 const upload = multer();  
 
+
 const program = new Command();
 
 program
@@ -57,7 +58,7 @@ app.post("/write", upload.none(), (req, res) => {
 
     notes[name] = text;
     saveNotes();
-    // res.sendStatus(201);
+    res.sendStatus(201);
     res.redirect('/UploadForm.html')
   });
 
@@ -69,6 +70,8 @@ app.get("/notes/:name", (req, res) => {
     res.send(notes[name]);
   });
 
+
+  
   // GET /notes (всі нотатки)
   app.get("/notes", (req, res) => {
     const noteList = Object.entries(notes).map(([name, text]) => ({
@@ -77,6 +80,33 @@ app.get("/notes/:name", (req, res) => {
     }));
     res.status(200).json(noteList);
   });
+
+
+  // PUT /notes/<ім’я>
+  app.put("/notes/:name", (req, res) => {
+    const name = req.params.name;
+    const newText = req.body.text?.trim();
+  
+    if (!notes[name]) return res.sendStatus(404);
+    if (!newText) return res.status(400).send("Missing text");
+  
+    notes[name] = newText;
+    saveNotes();
+    res.sendStatus(200);
+  });
+  
+
+// DELETE /notes/<ім’я>
+  app.delete("/notes/:name", (req,res) =>{
+    const name = req.params.name;
+    if (!notes[name]) return res.sendStatus(404);
+
+    delete notes[name];
+    saveNotes();
+    res.sendStatus(200);
+  });
+
+
 
 
 app.listen(options.port, options.host, () => {
