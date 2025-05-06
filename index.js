@@ -45,7 +45,7 @@ app.get('/UploadForm.html', (req, res) => {
     res.sendFile(filePath);
 });
 
-
+// POST /write
 app.post("/write", upload.none(), (req, res) => {
     const name = req.body.note_name?.trim();
     const text = req.body.note?.trim();
@@ -61,6 +61,22 @@ app.post("/write", upload.none(), (req, res) => {
     res.redirect('/UploadForm.html')
   });
 
+
+  // GET /notes/<ім’я>
+app.get("/notes/:name", (req, res) => {
+    const name = req.params.name;
+    if (!notes[name]) return res.sendStatus(404);
+    res.send(notes[name]);
+  });
+
+  // GET /notes (всі нотатки)
+  app.get("/notes", (req, res) => {
+    const noteList = Object.entries(notes).map(([name, text]) => ({
+      name,
+      text
+    }));
+    res.status(200).json(noteList);
+  });
 
 
 app.listen(options.port, options.host, () => {
